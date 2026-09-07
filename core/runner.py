@@ -38,6 +38,7 @@ from .runner_challenge import ChallengeOps
 from .runner_crafting import CraftingOps
 from .runner_expedition import ExpeditionOps
 from .runner_fuel import FuelOps
+from .runner_portal import PortalOps
 from .runner_shop import ShopOps
 
 
@@ -114,7 +115,7 @@ def _find_team_load_button(frame, expected_y):
     return cx, cy
 
 
-class MacroRunner(BountyOps, ChallengeOps, CraftingOps, FuelOps, ShopOps, ExpeditionOps, BlockOps):
+class MacroRunner(BountyOps, ChallengeOps, CraftingOps, FuelOps, ShopOps, ExpeditionOps, PortalOps, BlockOps):
     """One run's worth of state -- module-level singleton via main.Api, same
     pattern as core.paths._recorder, since only one run can realistically be
     active at a time (one physical game window, one macro)."""
@@ -1572,6 +1573,33 @@ class MacroRunner(BountyOps, ChallengeOps, CraftingOps, FuelOps, ShopOps, Expedi
                 return False
             if self._checkpoint(stop_event):
                 return False
+        elif mode == "portal":
+            # Portal (Tier 5 only) is reached straight from the main screen's
+            # own Items tab, not through Play/gamemode/map -- item_portals ->
+            # the Tier 5 card -> Activate Portal is the whole selection, with
+            # no difficulty and no Select Stage confirm of its own (see the
+            # mode != "portal" skip in _enter_selected_stage below). Same
+            # retried-from-scratch loop as the other non-map paths, since a
+            # failed attempt leaves nothing safe to assume about where we
+            # ended up.
+            reached_portal = False
+            for attempt in range(1, MAP_SELECT_RETRY_ATTEMPTS + 1):
+                if self._checkpoint(stop_event):
+                    return False
+                if attempt > 1:
+                    self._log(f"[Macro] Retrying Portal entry from the main screen "
+                               f"(attempt {attempt}/{MAP_SELECT_RETRY_ATTEMPTS})...")
+                if self._reach_portal_selected(hwnd, stop_event, task):
+                    reached_portal = True
+                    break
+                if stop_event.is_set():
+                    return False
+            if not reached_portal:
+                self._log(f'[Macro] Couldn\'t reach the Portal screen after '
+                          f'{MAP_SELECT_RETRY_ATTEMPTS} attempts -- stopping.')
+                return False
+            if self._checkpoint(stop_event):
+                return False
         else:
             # Lobby -> Play -> Story/Raid -> map search, retried wholesale from
             # the lobby if the map search fails and backing out succeeds (see
@@ -1633,8 +1661,11 @@ class MacroRunner(BountyOps, ChallengeOps, CraftingOps, FuelOps, ShopOps, Expedi
         # appear/work until it's pressed, so it needs an actual (verified,
         # retried) click, not just a wait. Solo-only: matchmaking goes
         # straight to Enter Matchmaking instead, since this doesn't
-        # reliably show up the same way for it.
-        if task.get("play_mode") != "matchmaking":
+        # reliably show up the same way for it. Portal has no Select Stage
+        # confirm of its own -- Activate Portal (see
+        # PortalOps._reach_portal_selected) already was that step, for
+        # either play mode -- so it's skipped here the same as matchmaking.
+        if task.get("play_mode") != "matchmaking" and mode != "portal":
             if mode == "tournament":
                 confirm_image = "nav_entertournament"
             elif mode == "expedition":
@@ -2227,6 +2258,19 @@ class MacroRunner(BountyOps, ChallengeOps, CraftingOps, FuelOps, ShopOps, Expedi
             # same stage directly, skipping the lobby/gamemode/map/stage
             # picks entirely (see _run_task_setup, which only runs once per
             # task, not once per repeat).
+            if task.get("mode") == "portal":
+                # Tier 5's win/loss screen swaps the normal Repeat Stage for
+                # its own Select Portal button, which jumps to a portal-
+                # selection screen rather than re-queuing directly -- picking
+                # the card there and confirming with Select re-enters on its
+                # own, with no separate Activate Portal or Start (see
+                # PortalOps._reselect_portal_and_reenter).
+                self._set_status(action=f"{label} -- reselecting the portal...")
+                if not self._reselect_portal_and_reenter(hwnd, stop_event, task, webhook):
+                    self._log('[Macro] Couldn\'t reselect the Tier 5 portal -- '
+                               'can\'t continue this task\'s repeats, stopping.')
+                    return False
+                return True
             if task.get("mode") == "tower":
                 repeat_image = "Next_Floor" if result == "win" else "Repeat_Floor"
                 repeat_label = repeat_image
@@ -2342,7 +2386,7 @@ class MacroRunner(BountyOps, ChallengeOps, CraftingOps, FuelOps, ShopOps, Expedi
         raw_stage = task.get("stage") or "-"
         # Raid/Event pick Acts; Story's Infinite/Mastery are named; the rest
         # are numbered stages.
-        if mode == "tower":
+        if mode in ("tower", "portal"):
             stage = "-"
         elif mode in ("raid", "event"):
             stage = f"Act {raw_stage}" if raw_stage != "-" else "-"
@@ -2354,10 +2398,10 @@ class MacroRunner(BountyOps, ChallengeOps, CraftingOps, FuelOps, ShopOps, Expedi
         # _run_task_setup's identical check) -- the task's own difficulty
         # setting never actually applies there, so reporting it verbatim
         # was showing e.g. "Normal" for a run that was really Hard. Event has
-        # no difficulty at all.
+        # no difficulty at all, and neither does Portal.
         if mode == "raid" or raw_stage in SPECIAL_STAGES_NO_DIFFICULTY:
             difficulty = "Hard"
-        elif mode in ("event", "tournament", "tower"):
+        elif mode in ("event", "tournament", "tower", "portal"):
             difficulty = "-"
         else:
             difficulty = task.get("difficulty") or "-"

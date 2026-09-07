@@ -365,6 +365,18 @@ TOWER_SCREEN_TIMEOUT = 10.0  # how long to wait for each Tower screen (nav_tower
 # subject to change.
 TOWER_CARD_REGION = (565, 230, 770 - 565, 351 - 230)  # (565, 230) -> (770, 351)
 
+# Portal mode (Tier 5 only): reached from the main screen's own Items tab,
+# not through Play/gamemode -- item_portals -> the Tier 5 card -> Activate
+# Portal -> the same nav_start/nav_unitmanager tail every other solo mode
+# already uses (see core.runner_portal._reach_portal_selected). On a repeat,
+# the win screen's own Select Portal button replaces Repeat Stage -- it jumps
+# to a portal-selection screen (same card, different position on screen) where
+# picking it and confirming with Select drops straight back into the next
+# match, with no separate Activate Portal or Start click needed that time
+# (see core.runner_portal._reselect_portal_and_reenter).
+PORTAL_STEP_TIMEOUT = 10.0  # each of item_portals / tier5_portal / activate_select_portal / select_portal / final_select_portal in turn
+PORTAL_DROP_TIMEOUT = 8.0   # the post-win portal-drop notice (tier5_portal_win) -- best-effort, see _reselect_portal_and_reenter
+
 # Auto Bounty derives all objective clicks from the live board. These values
 # only bound waits and the board's outer scroll gesture.
 BOUNTY_SCREEN_TIMEOUT = 10.0

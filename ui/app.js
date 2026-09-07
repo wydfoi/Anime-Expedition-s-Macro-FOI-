@@ -2201,6 +2201,19 @@ const TASK_DATA = {
     stages: ['1'],
     isTower: true,
   },
+  portal: {
+    label: 'Portal',
+    // Tier 5 only -- reached from the main screen's own Items tab, not
+    // Play/gamemode, so there's no real map to pick either; this is an
+    // internal default only (see runner_portal._reach_portal_selected),
+    // same pattern as Tower's map above. No difficulty or stage picker
+    // in-game. Unlike Tower/Tournament, Portal DOES support Solo/
+    // Matchmaking (it can be run with other players) -- so, unlike those
+    // two, this has no isTower/isTournament-style flag forcing play_mode
+    // to 'solo'; the toggle stays available.
+    maps: ['Tier 5'],
+    isPortal: true,
+  },
 };
 
 let taskCards = [];
@@ -2844,7 +2857,7 @@ function renderTaskBuilder() {
   const field = (label, control, tooltip = '') => `<div class="task-field" ${tooltip ? `data-tooltip="${escapeHtml(tooltip)}"` : ''}><span>${label}</span>${control}</div>`;
 
   const fields = [
-    field('Mode', sel('mode', Object.keys(TASK_DATA), k => TASK_DATA[k].label, 'Select game mode: Story, Raid, Expedition, Event, Tournament, or Tower'), 'Choose game mode'),
+    field('Mode', sel('mode', Object.keys(TASK_DATA), k => TASK_DATA[k].label, 'Select game mode: Story, Raid, Expedition, Event, Tournament, Tower, or Portal'), 'Choose game mode'),
     field('Repeat', `<div class="task-rep-group" style="width: 100%;">&times;<input type="number" min="1" value="${t.repeat}"
       oninput="setTaskProp('${t.id}', 'repeat', Math.max(1, parseInt(this.value, 10) || 1))"></div>`, 'Number of times to run this task'),
   ];
