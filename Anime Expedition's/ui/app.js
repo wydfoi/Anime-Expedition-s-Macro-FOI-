@@ -1766,7 +1766,7 @@ async function closeSubscribePrompt() {
 }
 
 async function subscribeAndClose() {
-  try { await pywebview.api.open_youtube_channel(); } catch (e) {}
+  try { await pywebview.api.open_tiktok(); } catch (e) {}
   await closeSubscribePrompt();
 }
 
@@ -7011,12 +7011,6 @@ async function openExamples() {
   list.querySelectorAll('.js-example').forEach(row => {
     row.addEventListener('click', () => useExample(row.dataset.example));
   });
-}
-
-// Opened through the API rather than an <a href>: the UI lives inside the
-// app's own webview, so navigating would replace the macro with a web page.
-async function openCommunity() {
-  try { await pywebview.api.open_community(); } catch (e) {}
 }
 
 function closeExamples() {

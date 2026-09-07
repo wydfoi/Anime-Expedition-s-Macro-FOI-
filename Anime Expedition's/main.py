@@ -3881,24 +3881,12 @@ class Api:
         webbrowser.open(updater.RELEASES_PAGE_URL)
         return {"ok": True}
 
-    YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@Cweamya/videos"
-    # Where people share routines with each other. The Examples picker points
-    # at it, since only a handful can reasonably ship with the app.
-    COMMUNITY_URL = "https://discord.gg/creams"
-
-    def open_youtube_channel(self) -> dict:
-        # The one-time subscribe prompt's button -- opens the creator's
-        # channel in the default browser.
+    TIKTOK_URL = "https://www.tiktok.com/@wydfoi"
+    def open_tiktok(self) -> dict:
+        # The one-time follow prompt's button -- opens the creator's
+        # TikTok in the default browser.
         import webbrowser
-        webbrowser.open(self.YOUTUBE_CHANNEL_URL)
-        return {"ok": True}
-
-    def open_community(self) -> dict:
-        # Examples picker -> "More examples". Opened in the default browser
-        # rather than navigated to: the UI runs inside the app's own webview,
-        # so an <a href> would replace the macro with a web page.
-        import webbrowser
-        webbrowser.open(self.COMMUNITY_URL)
+        webbrowser.open(self.TIKTOK_URL)
         return {"ok": True}
 
     def export_failure_report(self) -> dict:

@@ -16,7 +16,7 @@ Install prerequisites before starting development:
 
 1. Clone repository:
    ```bash
-   git clone https://github.com/Cweamy/Anime-Expeditions-Creams-Macro.git
+   git clone https://github.com/wydfoi/Anime-Expedition-s-Macro-FOI-.git
    cd Anime-Expeditions-Creams-Macro
    ```
 

@@ -2401,8 +2401,7 @@ class MacroRunner(BountyOps, ChallengeOps, CraftingOps, FuelOps, ShopOps, Expedi
         # A plain incoming webhook can't render real buttons (those need a
         # bot/app-owned webhook) -- so the links go here as clickable masked
         # markdown links, which render everywhere. Full width, at the bottom.
-        links = (f"[\U0001F4AC Discord]({DISCORD_INVITE_URL})   •   "
-                 f"[\U0001F4FA YouTube]({YOUTUBE_URL})   •   "
+        links = (f"[\U0001F3B5 TikTok]({TIKTOK_URL})   •   "
                  f"[\U00002B50 GitHub]({GITHUB_REPO_URL})")
         fields.append({"name": "\U0001F517 Links", "value": links, "inline": False})
         result_word = "Victory" if is_win else "Defeat"

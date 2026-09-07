@@ -28,7 +28,7 @@ import zipfile
 import requests
 
 APP_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
-GITHUB_REPO = "Cweamy/Anime-Expeditions-Creams-Macro"
+GITHUB_REPO = "wydfoi/Anime-Expedition-s-Macro-FOI-"
 RELEASES_PAGE = f"https://github.com/{GITHUB_REPO}/releases/latest"
 API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
 # Must match release.yml's packaged Windows zip name exactly (dashes on
@@ -43,7 +43,7 @@ VERSION_FILE = os.path.join(APP_DIR, ".bootstrap_version")
 # updating"; this file used to name it literally, so the same rename would make
 # the bootstrapper extract everything correctly and then report
 # "Couldn't download Cream's Macro" because it was looking for the old name.
-_EXE_HINT = "Creams Macro - Anime Expeditions.exe"   # tried first; just a hint
+_EXE_HINT = "Anime Expeditions.exe"   # tried first; just a hint
 
 
 def find_local_exe() -> str:
